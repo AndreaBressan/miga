@@ -46,7 +46,7 @@ if throwOnError
     runner.addPlugin(StopOnFailuresPlugin)
 end
 if coverage_enabled
-    testResultFolder=fullfile(migaDir,"Documentation","tests");
+    testResultFolder=fullfile(migaDir,"","test_results");
     ensureFolder(testResultFolder);
     reportFormat = CoverageReport(testResultFolder,"MainFile","coverage.html");
     filesPath=arrayfun(@(f)string(fullfile(f.folder,f.name)),sourceFiles);
