@@ -1,0 +1,3 @@
+[submodule "external/chebfun"]
+	path = external/chebfun
+	url = git@github.com:chebfun/chebfun.git
