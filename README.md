@@ -31,7 +31,7 @@ knots=[1 1 1 1 2 3 4 5];
 basis=bSpline(degree,knots);
 xs=linspace(1,5,100);
 ys=basis.evaluate(xs); % evaluate values
-ds=basis.evaluate(parDers(1)); % evaluate first derivative
+ds=basis.evaluate(xs,parDers(1)); % evaluate first derivative
 basis.plot(); % plot all basis functions
 coefficients=rand(basis.dimension,1);
 f=subBasis(basis,coefficients);
