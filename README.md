@@ -49,4 +49,60 @@ mass=quadrature.integrate(constantFunction(1,test.domain),test,zeros(1,1,2),tria
 % replacing zeros(1,1,2) with reshape([1,2],1,1,2) would integrate the first derivative of the test against the second derivative of the trial.
 max(abs(coefficients-mass\fTest)) % print the error of the solver of the L^2 projection
 ```
-3. Sparsity represents the structure on non-zeros in the Galerkin matrices. 
+3. Sparsity represents the structure on non-zeros in the Galerkin matrices.
+
+## Poisson with homogeneous Dirichlet conditions
+```matlab
+% domain
+geo= quarterRing(1,2); 
+domain=geo.domain;
+dim=size(domain,1);
+
+% right hand side
+R2=repmat([-inf,inf],2,1); % the domain is the whole plane
+physicalF=exprBasis(R2,"sin(3*x1+7*x2^2)"); % a function defined on the plane with a given expression
+
+% describe the operator as pairs of derivatives and coefficients
+% column (:,i,1) is the derivative of the test in the i-th direction
+% and is integrated multiplied by the derivative of the trial in the 
+% direction column(:,i,2)
+% the coefficient function for each pair of derivatives is passed as
+% a basis type, in this case a set of dim constant functions all equal to 1. 
+physicalPairs=repmat(eye(dim),1,1,2); 
+physicalCoefs=constantFunction(ones(dim,1),R2,[],dim); 
+
+% set test and trial space splines that have zero value at the boundary
+degree=repmat(3,1,dim);;
+n=repmat(4,1,dim);
+
+for i=1:dim
+	knots=[domain(i,1)*ones(1,degree(i)-1),linspace(domain(i,1),domain(i,2),n(i)+1),domain(i,2)*ones(1,degree(i)-1)]; 
+	uBasis(i)=bSpline(degree(i),knots); % one can have different degrees and knots per direction
+end
+basis=tBasis(uBasis);
+test=basis;
+trial=basis; % use a different basis for Petrov-Galerkin cases
+
+% choose integration
+uQuad=arrayfun(@(i) uElementQuadrature(bases2elements(uBasis(i)), gaussQuad(degree(i)+1)),1:dim);
+quad=tQuadrature(uQuad);
+
+% map operator and rhs to the parametric domain
+parametricCoefs=H1pullback(geo,physicalCoefs,physicalPairs);
+parametricF=H1pullback(geo,physicalF);
+
+% integrate
+A=quad.integrate(parametricCoefs,test,parametricCoefs.newRequest,trial);
+rhs=quad.integrate(parametricF,test);
+uCoefs=A\rhs;
+u=subBasis(trial,uCoefs);
+
+% evaluate and plot the solution
+NumPoints=100*ones(1,dim);
+parametricXs=arrayfun(@(i)linspace(domain(i,1),domain(i,2),NumPoints(i)),1:dim,'UniformOutput',false);
+ys=u.evaluate(parametricXs);
+physicalXs=geo.evaluate(parametricXs);
+
+surfLines(reshape(physicalXs(1,:),NumPoints),reshape(physicalXs(2,:),NumPoints),reshape(ys,NumPoints));
+```
+
