@@ -29,7 +29,7 @@ classdef uElementQuadrature < aIntegration
                 nel=size(elements,1);
                 assert(nel==numel(models),'Different number of elements and quadratures provided');
                 NC=arrayfun(@(i)(-1+models(i).nodes)/2.*elements(i,1)+(1-models(i).nodes)/2.*elements(i,2),1:nel,'UniformOutput',false);
-                WC=arrayfun(@(i)models(i).weights.*(elements(i,2)-elements(i,1)) ,'UniformOutput',false);
+                WC=arrayfun(@(i)models(i).weights.*(elements(i,2)-elements(i,1)),1:nel ,'UniformOutput',false);
                 obj.nodes=cat(2,NC{:});
                 obj.weights=cat(2,WC{:});
             end
