@@ -16,7 +16,7 @@ classdef H1pullback < aBasis
                 geo        (1,1)   aBasis
                 coefs      (1,1)   aBasis = constantFunction(1,repmat([-inf,inf],geo.rangeSize,1))
                 oldRequest (:,:,:) double = double.empty
-                side       (:,1)   double = zeros(geo.rangeSize,1)
+                side       (:,1)   double = zeros(size(geo.domain,1),1)
             end
             obj@aBasis();
             obj.geo = geo;
